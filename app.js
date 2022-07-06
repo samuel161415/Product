@@ -10,7 +10,6 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended: true
       }));
-      console.log("hi");
 app.get('/',(req,res)=>{
     res.send("hi")
 })
@@ -35,40 +34,53 @@ res.send('error'+ error)
 }
 })
 
+
 app.get('/get_all_product_details',async(req,res)=>{
+    console.log("am excuted",req.body.date1);
     const {date1}=req.body
     const {date2}=req.body
     var products=''
-    var perchasedProducts=''
+    var perchasedProducts
     try{
         if(date1&&date2){
-
-            perchasedProducts= await product.findMany({
-                'registredOn': {
-                    $gte:date1,
-                    $lte:date2,
-                  },
+          console.log('both date');
+          const filter={"registredOn": {
+            $gte:date1,
+            $lte:date2,
+          },}
+            perchasedProducts= await product.find({
+                  startPostion:req.body.startPostion,
+                  maxResult:req.body.maxResult,
+                  filter
                  
             }) 
     
         }
         else if(date1){
-            perchasedProducts= await product.findMany({
-                'registredOn': {
-                    $gte:date1,
-                   
-                  }
-            })
+            console.log("date1");
+            var filter = {"registredOn": { $gte: req.body.date1 }}; 
+            perchasedProducts= await product.find(
+               { startPostion:req.body.startPostion,
+                maxResult:req.body.maxResult,
+               filter
+            }
+               
+            )
         }
         else{
-            perchasedProducts= await product.findMany({
-                'registredOn': {
-                    $lte:date2,
-                   
-                  }
-            })
+            console.log('date 2');
+            const filter={"registredOn": { $lte: req.body.date2 }}
+            perchasedProducts= await product.find(
+                { startPostion:req.body.startPostion,
+                 maxResult:req.body.maxResult,
+                filter
+             }
+                
+             )
         }
-        res.status(200).send(perchasedProducts)
+        const returnPurchase=await purchase.find();
+        const returnvalue=perchasedProducts.concat(returnPurchase)
+        res.status(200).send(returnvalue)
     }
     catch(err){
         res.send("error")

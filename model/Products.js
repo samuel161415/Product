@@ -28,5 +28,14 @@ lastUpdatedOn:{
     type: Date,
     default:false
 },
+startPostion:{
+    type:Number,
+    required:true
+},
+maxResult:{
+    type:Number,
+    required:true
+}
+
 })
 module.exports=mongoose.model('Products',dataSchema)
